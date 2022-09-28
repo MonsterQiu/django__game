@@ -42,7 +42,7 @@ class Player extends AcGameObject {
             if (e.which === 3) {
                 outer.move_to(e.clientX, e.clientY);
             } else if (e.which === 1) {
-                if (outer.cur_skill === "fireball" && this.radius > 12) {
+                if (outer.cur_skill === "fireball" && this.radius > 11) {
                     outer.shoot_fireball(e.clientX, e.clientY);
                 }
                 outer.cur_skill = null;
@@ -99,7 +99,9 @@ class Player extends AcGameObject {
 
         }
 
+
         this.radius -= damage;
+
         if (this.radius < 10) {
             this.destroy();
 
@@ -115,13 +117,13 @@ class Player extends AcGameObject {
     update() {
         this.spent_time += this.timedelta / 1000;
         let exit = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
-        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
 
+        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
+            // ai无法排除自己
             let player = exit;
             let tx = player.x + player.speed * this.vx * this.timedelta / 1000 * 0.3;
             let ty = player.y + player.speed * this.vy * this.timedelta / 1000 * 0.3;
             this.shoot_fireball(tx, ty);
-
         }
 
         // 被攻击则无法移动

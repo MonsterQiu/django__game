@@ -221,7 +221,7 @@ class Player extends AcGameObject {
             if (e.which === 3) {
                 outer.move_to(e.clientX, e.clientY);
             } else if (e.which === 1) {
-                if (outer.cur_skill === "fireball" && this.radius > 12) {
+                if (outer.cur_skill === "fireball" && this.radius > 11) {
                     outer.shoot_fireball(e.clientX, e.clientY);
                 }
                 outer.cur_skill = null;
@@ -278,7 +278,9 @@ class Player extends AcGameObject {
 
         }
 
+
         this.radius -= damage;
+
         if (this.radius < 10) {
             this.destroy();
 
@@ -294,13 +296,14 @@ class Player extends AcGameObject {
     update() {
         this.spent_time += this.timedelta / 1000;
         let exit = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
-        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
 
+        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
+            console.log("选择的敌人：",exit.radius)
+            console.log("存在的敌人数量",this.playground.players.length)
             let player = exit;
             let tx = player.x + player.speed * this.vx * this.timedelta / 1000 * 0.3;
             let ty = player.y + player.speed * this.vy * this.timedelta / 1000 * 0.3;
             this.shoot_fireball(tx, ty);
-
         }
 
         // 被攻击则无法移动
@@ -361,8 +364,8 @@ class AymPlayground {
         this.players = [];
         this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, "#B0E2FF", this.height * 0.15, true));
 
-        for (let i = 0; i < 6; i++) {
-            this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.052, this.get_random_color(), this.height * 0.15, false));
+        for (let i = 0; i < 3; i++) {
+            this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, this.get_random_color(), this.height * 0.15, false));
         }
         this.start();
     }
