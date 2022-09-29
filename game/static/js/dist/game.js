@@ -216,13 +216,13 @@ class Player extends AcGameObject {
         this.playground.game_map.$canvas.on("contextmenu", () => {
             return false;
         });
-
         this.playground.game_map.$canvas.mousedown((e) => {
+            const rect = outer.ctx.canvas.getBoundingClientRect();
             if (e.which === 3) {
-                outer.move_to(e.clientX, e.clientY);
+                outer.move_to(e.clientX - rect.left, e.clientY - rect.top);
             } else if (e.which === 1) {
                 if (outer.cur_skill === "fireball" && this.radius > 11) {
-                    outer.shoot_fireball(e.clientX, e.clientY);
+                    outer.shoot_fireball(e.clientX -rect.left, e.clientY - rect.top);
                 }
                 outer.cur_skill = null;
             }
@@ -298,8 +298,7 @@ class Player extends AcGameObject {
         let exit = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
 
         if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
-            console.log("选择的敌人：",exit.radius)
-            console.log("存在的敌人数量",this.playground.players.length)
+            // ai无法排除自己
             let player = exit;
             let tx = player.x + player.speed * this.vx * this.timedelta / 1000 * 0.3;
             let ty = player.y + player.speed * this.vy * this.timedelta / 1000 * 0.3;
@@ -355,18 +354,8 @@ class AymPlayground {
         this.root = root;
         this.$playground = $(`<div class="ac-game-playground"></div>`);
         console.log(this.root);
-        //this.hide();
-        this.root.$aym.append(this.$playground);
-        this.width = this.$playground.width();
+        this.hide();
 
-        this.height = this.$playground.height();
-        this.game_map = new GameMap(this);
-        this.players = [];
-        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, "#B0E2FF", this.height * 0.15, true));
-
-        for (let i = 0; i < 3; i++) {
-            this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, this.get_random_color(), this.height * 0.15, false));
-        }
         this.start();
     }
 
@@ -381,6 +370,18 @@ class AymPlayground {
 
     show() {  // 打开playground界面
         this.$playground.show();
+        this.root.$aym.append(this.$playground);
+        this.width = this.$playground.width();
+
+        this.height = this.$playground.height();
+        this.game_map = new GameMap(this);
+        this.players = [];
+        this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, "#B0E2FF", this.height * 0.15, true));
+
+        for (let i = 0; i < 6; i++) {
+            this.players.push(new Player(this, this.width / 2, this.height / 2, this.height * 0.055, this.get_random_color(), this.height * 0.15, false));
+        }
+
     }
 
     hide() {  // 关闭playground界面
@@ -456,7 +457,7 @@ class Fireball extends AcGameObject {
     constructor(id) {
         this.id = id;
         this.$aym = $('#' + id);
-        //this.menu = new AymMenu(this);
+        this.menu = new AymMenu(this);
         this.playground = new AymPlayground(this);
 
         this.start();
