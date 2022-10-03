@@ -84,6 +84,7 @@ class GameMap extends AcGameObject {
 }class AymMenu {
     constructor(root) {
         this.root = root;
+
         this.$menu = $(`
 <div class="ac-game-menu">
     <div class="ac-game-menu-field">
@@ -103,6 +104,7 @@ class GameMap extends AcGameObject {
     </div>
 </div>
 `);
+        this.$menu.hide()
         this.root.$aym.append(this.$menu);
         this.$single_mode = this.$menu.find('.ac-game-menu-field-item-single-mode');
         this.$multi_mode = this.$menu.find('.ac-game-menu-field-item-multi-mode');
@@ -198,6 +200,12 @@ class Player extends AcGameObject {
         this.cur_skill = null;
         this.friction = 0.9;
         this.spent_time = 0;
+
+        if (this.is_me) {
+            this.img = new Image();
+            this.img.src = this.playground.root.settings.photo;
+        }
+
     }
 
     start() {
@@ -334,10 +342,22 @@ class Player extends AcGameObject {
     }
 
     render() {
-        this.ctx.beginPath();
-        this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        this.ctx.fillStyle = this.color;
-        this.ctx.fill();
+        if (this.is_me){
+            this.ctx.save();
+            this.ctx.beginPath();
+            this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
+            this.ctx.stroke();
+            this.ctx.clip();
+            this.ctx.drawImage(this.img, this.x - this.radius, this.y - this.radius, this.radius * 2, this.radius * 2);
+            this.ctx.restore();
+        }else {
+            this.ctx.beginPath();
+            this.ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+            this.ctx.fillStyle = this.color;
+            this.ctx.fill();
+        }
+
+
     }
 
     on_destroy() {
@@ -388,7 +408,77 @@ class AymPlayground {
         this.$playground.hide();
     }
 }
-class Fireball extends AcGameObject {
+class Settings {
+    constructor(root) {
+        this.root = root;
+        this.platform = "WEB";
+        if (this.platform.AcWingOS) this.platform = "ACAPP";
+        this.username = "";
+        this.photo = "";
+
+        this.$settings = $("#settings");
+        this.$login = this.$settings.find(".ac-game-settings-login");
+        this.$login_username = this.$login.find(".ac-game-settings-username input");
+        this.$login_password = this.$login.find(".ac-game-settings-password input");
+        this.$login_submit = this.$login.find(".ac-game-settings-submit button");
+        this.$login_error_message = this.$login.find(".ac-game-settings-error-message");
+        this.$login_register = this.$login.find(".ac-game-settings-option");
+
+
+
+        this.$register = this.$settings.find(".ac-game-settings-register");
+        this.$register_username = this.$register.find(".ac-game-settings-username input");
+        this.$register_password = this.$register.find(".ac-game-settings-password-first input");
+        this.$register_password_confirm = this.$register.find(".ac-game-settings-password-second input");
+        this.$register_submit = this.$register.find(".ac-game-settings-submit button");
+        this.$register_error_message = this.$register.find(".ac-game-settings-error-message");
+        this.$register_login = this.$register.find(".ac-game-settings-option");
+
+        this.$register.hide();
+
+        this.root.$aym.append(this.$settings);
+
+        console.log(this.$settings);
+
+        this.start();
+    }
+
+    start() {
+        this.getinfo();
+    }
+
+    register(){
+
+    }
+
+    login(){
+
+    }
+    getinfo() {
+        let outer = this;
+        $.ajax({
+            url: "http://127.0.0.1:8000/settings/getinfo/",
+            type: "get",
+            data: {
+                platform: outer.platform,
+            },
+            success: (resp)=>{
+                console.log(resp);
+                if(resp.result == "success"){
+                    outer.username = resp.username;
+                    outer.photo = resp.photo;
+                    outer.hide();
+                    outer.root.menu.show();
+                }else {
+                    outer.login();
+                }
+            }
+        })
+    }
+
+    hide(){}
+    show(){}
+}class Fireball extends AcGameObject {
     constructor(playground, player, x, y, radius, color, speed, move_length, vx, vy, damage) {
         super();
         this.playground = playground;
@@ -454,10 +544,13 @@ class Fireball extends AcGameObject {
     }
 
 }export class AymGame {
-    constructor(id) {
+    constructor(id, AcWingOS) {
         this.id = id;
         this.$aym = $('#' + id);
+        this.settings = new Settings(this);
         this.menu = new AymMenu(this);
+
+        this.AcWingOS = AcWingOS;
         this.playground = new AymPlayground(this);
 
         this.start();

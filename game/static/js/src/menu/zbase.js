@@ -1,6 +1,7 @@
 class AymMenu {
     constructor(root) {
         this.root = root;
+
         this.$menu = $(`
 <div class="ac-game-menu">
     <div class="ac-game-menu-field">
@@ -20,6 +21,7 @@ class AymMenu {
     </div>
 </div>
 `);
+        this.$menu.hide()
         this.root.$aym.append(this.$menu);
         this.$single_mode = this.$menu.find('.ac-game-menu-field-item-single-mode');
         this.$multi_mode = this.$menu.find('.ac-game-menu-field-item-multi-mode');

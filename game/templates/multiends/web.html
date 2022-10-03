@@ -28,7 +28,7 @@
                     </div>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link" href="#">Login</a>
+                        <a class="nav-item nav-link" href="{% url 'login_web' %}">Login</a>
                         <a class="nav-item nav-link" href="#">Register</a>
                     </div>
                 </div>
@@ -42,12 +42,11 @@
 
 </div>
 </div>
-
     <script type="module">
         import {AymGame} from "{% static 'js/dist/game.js' %}";
         $(document).ready(function () {
             let aym = new AymGame("aym_12345678");
         });
-
     </script>
+
 </body>
