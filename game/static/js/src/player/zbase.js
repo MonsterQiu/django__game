@@ -124,8 +124,9 @@ class Player extends AcGameObject {
         this.spent_time += this.timedelta / 1000;
         let exit = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
 
-        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
+        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 10 && this.playground.players.length >= 2) {
             // ai无法排除自己
+
             let player = exit;
             let tx = player.x + player.speed * this.vx * this.timedelta / 1000 * 0.3;
             let ty = player.y + player.speed * this.vy * this.timedelta / 1000 * 0.3;

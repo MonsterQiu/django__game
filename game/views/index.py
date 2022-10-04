@@ -2,4 +2,6 @@ from django.shortcuts import render
 
 
 def index(request):
-    return render(request, "multiends/web.html")
+    user = request.user
+
+    return render(request, "multiends/web.html", {'user': str(user)})

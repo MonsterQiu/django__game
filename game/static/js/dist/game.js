@@ -110,7 +110,6 @@ class GameMap extends AcGameObject {
         this.$multi_mode = this.$menu.find('.ac-game-menu-field-item-multi-mode');
         this.$settings = this.$menu.find('.ac-game-menu-field-item-settings');
         this.start();
-
     }
 
     start() {
@@ -305,8 +304,9 @@ class Player extends AcGameObject {
         this.spent_time += this.timedelta / 1000;
         let exit = this.playground.players[Math.floor(Math.random() * this.playground.players.length)];
 
-        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 11 && this.playground.players.length >= 2) {
+        if (Math.random() < 1 / 300.0 && this.spent_time > 3 && !this.is_me && exit.radius > 10 && this.playground.players.length >= 2) {
             // ai无法排除自己
+
             let player = exit;
             let tx = player.x + player.speed * this.vx * this.timedelta / 1000 * 0.3;
             let ty = player.y + player.speed * this.vy * this.timedelta / 1000 * 0.3;
@@ -373,7 +373,7 @@ class AymPlayground {
     constructor(root) {
         this.root = root;
         this.$playground = $(`<div class="ac-game-playground"></div>`);
-        console.log(this.root);
+
         this.hide();
 
         this.start();
@@ -424,7 +424,7 @@ class Settings {
         this.$login_error_message = this.$login.find(".ac-game-settings-error-message");
         this.$login_register = this.$login.find(".ac-game-settings-option");
 
-
+        this.$login.hide();
 
         this.$register = this.$settings.find(".ac-game-settings-register");
         this.$register_username = this.$register.find(".ac-game-settings-username input");
@@ -438,22 +438,123 @@ class Settings {
 
         this.root.$aym.append(this.$settings);
 
-        console.log(this.$settings);
-
         this.start();
     }
 
     start() {
         this.getinfo();
+        this.add_listening_events();
     }
 
-    register(){
+    add_listening_events() {
+        this.add_listening_events_login();
+        this.add_listening_events_register();
+    }
+
+    add_listening_events_login() {
+        let outer = this;
+        this.$login_register.click(function() {
+            outer.register();
+        });
+        this.$login_submit.click(function() {
+            outer.login_on_remote();
+        });
+    }
+
+    add_listening_events_register() {
+        let outer = this;
+        this.$register_login.click(function() {
+            outer.login();
+        });
+
+        this.$register_submit.click(function() {
+            outer.register_on_remote();
+        });
+    }
+
+    login_on_remote() {  // 在远程服务器上登录
+        let outer = this;
+        let username = this.$login_username.val();
+        let password = this.$login_password.val();
+        this.$login_error_message.empty();
+
+
+        $.ajax({
+            url: "http://127.0.0.1:8000/settings/login/",
+            type: "GET",
+            data: {
+                username: username,
+                password: password,
+            },
+            success: function(resp) {
+                console.log(resp);
+                if (resp.result === "success") {
+                    location.reload();
+                    window.location="http://127.0.0.1:8000/menu/";
+
+                } else {
+                    outer.$login_error_message.html(resp.result);
+                }
+            }
+        });
+    }
+
+    register_on_remote(){
+        let outer = this;
+        let username = this.$register_username.val();
+        let password = this.$register_password.val();
+        let password_confirm = this.$register_password_confirm.val();
+        this.$login_error_message.empty();
+
+        $.ajax({
+            url:"http://127.0.0.1:8000/settings/register/",
+            type:"get",
+            data: {
+                username: username,
+                password: password,
+                password_confirm: password_confirm,
+            },
+            success: (resp)=>{
+                console.log(resp);
+                if (resp.result == "success") {
+                    location.reload();
+                    window.location.url="http://127.0.0.1:8000/menu/";
+                }else {
+                    outer.$register_error_message.html(resp.result);
+                }
+
+            }
+        })
 
     }
 
-    login(){
+    logout_on_remote() {//远程服务器登出
+        if (this.platform === "ACAPP") return false;
 
+        $.ajax({
+            url: "http://127.0.0.1:8000/settings/logout/",
+            type: "get",
+            success: (resp)=>{
+                console.log(resp);
+                if(resp.result == "success"){
+                    location.reload();
+                }
+            }
+        });
     }
+
+
+    register() {  // 打开注册界面
+        this.$login.hide();
+        this.$register.show();
+    }
+
+    login() {  // 打开登录界面
+        this.$register.hide();
+        this.$login.show();
+    }
+
+
     getinfo() {
         let outer = this;
         $.ajax({
@@ -552,6 +653,12 @@ class Settings {
 
         this.AcWingOS = AcWingOS;
         this.playground = new AymPlayground(this);
+        this.$logout_click = $("#logout_click");
+        this.$logout_click.click(()=>{
+            this.settings.logout_on_remote();
+            location.reload();
+
+        });
 
         this.start();
     }

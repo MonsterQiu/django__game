@@ -28,8 +28,12 @@
                     </div>
                     <!-- Navbar Right Side -->
                     <div class="navbar-nav">
+                    {% if user == "AnonymousUser" %}
                         <a class="nav-item nav-link" href="{% url 'login_web' %}">Login</a>
-                        <a class="nav-item nav-link" href="#">Register</a>
+                    {% else %}
+                        <a class="nav-item nav-link " id="logout_click" href="{% url 'menu' %}">Logout</a>
+                    {% endif %}
+
                     </div>
                 </div>
             </div>
@@ -42,11 +46,13 @@
 
 </div>
 </div>
-    <script type="module">
-        import {AymGame} from "{% static 'js/dist/game.js' %}";
-        $(document).ready(function () {
-            let aym = new AymGame("aym_12345678");
-        });
-    </script>
+
+<script type="module">
+    import {AymGame} from "{% static 'js/dist/game.js' %}";
+
+    $(document).ready(function () {
+        let aym = new AymGame("aym_12345678");
+    });
+</script>
 
 </body>

@@ -2,7 +2,7 @@ class AymPlayground {
     constructor(root) {
         this.root = root;
         this.$playground = $(`<div class="ac-game-playground"></div>`);
-        console.log(this.root);
+
         this.hide();
 
         this.start();

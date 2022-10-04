@@ -3,7 +3,8 @@ from game.models.player.player import Player
 
 
 def getinfo_acapp(request):
-    player = Player.objects.all()[0]
+    user = request.user
+    player = Player.objects.get(user=user)
     return JsonResponse({
         "result": "success",
         "name": player.user.username,
@@ -17,8 +18,7 @@ def getinfo_web(request):
         return JsonResponse({"result": "没登录"})
 
     else:
-        print("loin")
-        player = Player.objects.all()[0]
+        player = Player.objects.get(user=user)
         return JsonResponse({
             "result": "success",
             "name": player.user.username,
