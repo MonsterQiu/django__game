@@ -417,6 +417,7 @@ class Settings {
         this.photo = "";
 
         this.$settings = $("#settings");
+        this.$logout_click = $("#logout_click");
         this.$login = this.$settings.find(".ac-game-settings-login");
         this.$login_username = this.$login.find(".ac-game-settings-username input");
         this.$login_password = this.$login.find(".ac-game-settings-password input");
@@ -446,9 +447,18 @@ class Settings {
         this.add_listening_events();
     }
 
+
     add_listening_events() {
         this.add_listening_events_login();
         this.add_listening_events_register();
+        this.logout_click();
+    }
+
+    logout_click(){
+        let outer = this;
+        this.$logout_click.click(()=>{
+            outer.logout_on_remote();
+        });
     }
 
     add_listening_events_login() {
@@ -477,7 +487,6 @@ class Settings {
         let username = this.$login_username.val();
         let password = this.$login_password.val();
         this.$login_error_message.empty();
-
 
         $.ajax({
             url: "http://127.0.0.1:8000/settings/login/",
@@ -516,28 +525,27 @@ class Settings {
             },
             success: (resp)=>{
                 console.log(resp);
-                if (resp.result == "success") {
+                if (resp.result === "success") {
                     location.reload();
-                    window.location.url="http://127.0.0.1:8000/menu/";
+                    window.location="http://127.0.0.1:8000/menu/";
                 }else {
                     outer.$register_error_message.html(resp.result);
                 }
 
             }
         })
-
     }
 
     logout_on_remote() {//远程服务器登出
         if (this.platform === "ACAPP") return false;
-
         $.ajax({
             url: "http://127.0.0.1:8000/settings/logout/",
             type: "get",
             success: (resp)=>{
                 console.log(resp);
-                if(resp.result == "success"){
+                if(resp.result === "success"){
                     location.reload();
+                    window.location= "http://127.0.0.1:8000/log-in/";
                 }
             }
         });
@@ -653,16 +661,12 @@ class Settings {
 
         this.AcWingOS = AcWingOS;
         this.playground = new AymPlayground(this);
-        this.$logout_click = $("#logout_click");
-        this.$logout_click.click(()=>{
-            this.settings.logout_on_remote();
-            location.reload();
-
-        });
 
         this.start();
     }
 
     start() {
+
     }
+
 }
